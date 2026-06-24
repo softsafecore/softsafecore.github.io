@@ -1,0 +1,12 @@
+{
+  "name": "vivalevee.online",
+  "version": "1.0.0",
+  "description": "Viva Leve - Saúde e Bem-Estar",
+  "scripts": {
+    "sitemap": "node generate-sitemap.js",
+    "build": "npm run sitemap",
+    "predeploy": "npm run build"
+  },
+  "author": "Viva Leve",
+  "license": "ISC"
+}

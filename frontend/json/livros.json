@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "slug": "nao-vai-dar",
+    "titulo": "Não vai dar",
+    "autor": "Cynthia Hand",
+    "preco": 90.00,
+    "moeda": "MT",
+    "categoria_tag": "romance",
+    "imagem": "../assets/covers/nao-vai-dar.jpg",
+    "payhip_key": "5MGX2",
+    "downloads": 124
+  }
+]

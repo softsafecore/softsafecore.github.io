@@ -3,20 +3,14 @@
     "development"
   ],
   "hints": {
+    "typescript-config/is-valid": "off",
     "no-inline-styles": "off",
-    "button-type": "off",
     "compat-api/css": [
       "default",
       {
         "ignore": [
-          "backdrop-filter"
+          "-webkit-overflow-scrolling"
         ]
-      }
-    ],
-    "axe/forms": [
-      "default",
-      {
-        "label": "off"
       }
     ]
   }

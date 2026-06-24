@@ -1,0 +1,67 @@
+{
+    "emulators": {
+        "auth": {
+            "port": 9099,
+            "host": "127.0.0.1"
+        },
+        "firestore": {
+            "port": 8080,
+            "host": "127.0.0.1"
+        },
+        "storage": {
+            "port": 9199,
+            "host": "127.0.0.1"
+        },
+        "ui": {
+            "enabled": true
+        },
+        "singleProjectMode": true
+    },
+    "hosting": {
+        "public": ".",
+        "ignore": [
+            "firebase.json",
+            "**/.*",
+            "**/node_modules/**",
+            "backend/**",
+            "rules/**",
+            "server.js",
+            "payment.js",
+            "generate-sitemap.js",
+            "import-books.js",
+            "package.json",
+            "package-lock.json",
+            "FEATURE_DOCUMENTATION.md",
+            ".gitignore"
+        ],
+        "cleanUrls": true,
+        "rewrites": [
+            {
+                "source": "/product",
+                "destination": "/frontend/pages/product.html"
+            },
+            {
+                "source": "/login",
+                "destination": "/frontend/pages/login.html"
+            },
+            {
+                "source": "/profile",
+                "destination": "/frontend/pages/profile.html"
+            },
+            {
+                "source": "/admin",
+                "destination": "/frontend/pages/admin.html"
+            },
+            {
+                "source": "**",
+                "destination": "/index.html"
+            }
+        ]
+    },
+    "firestore": {
+        "rules": "rules/firestore.rules"
+    },
+    "storage": {
+        "rules": "rules/storage.rules"
+    }
+}

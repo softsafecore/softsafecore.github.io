@@ -1,0 +1,11 @@
+# Ignorar dependências caso existam na pasta
+node_modules/
+
+# SEGURANÇA: Ignorar arquivos de ambiente que contêm segredos
+.env
+.env.local
+
+# Logs e arquivos de sistema
+npm-debug.log*
+*.log
+.DS_Store

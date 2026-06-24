@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detalhes do Livro - Viva Leve</title>
+
+    <!-- Meta Tags Base para Red es Sociais (Open Graph) -->
+    <meta property="og:type" content="book" />
+    <meta property="og:url" content="" id="og-url" />
+    <meta
+      property="og:title"
+      content="Viva Leve - Saúde e Bem-Estar"
+      id="og-title"
+    />
+    <meta
+      property="og:description"
+      content="Encontre a clareza necessária para transformar a sua rotina."
+      id="og-description"
+    />
+    <meta property="og:image" content="../assets/favicon.png" id="og-image" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="stylesheet" href="../css/style.css" />
+    <!-- Novo CSS Modular de Navegação e Rodapé -->
+    <link rel="stylesheet" href="../css/nav-footer.css" />
+
+    <!-- Fonte Poppins -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Skeleton Placeholder: Essencial para a injeção correta da Navbar e evitar CLS -->
+    <div id="nav-skeleton" class="nav-skeleton">
+      <div class="container-layout skeleton-navbar">
+        <div class="skeleton-logo shimmer"></div>
+        <div class="skeleton-search shimmer"></div>
+        <div class="skeleton-actions">
+          <div class="skeleton-item shimmer"></div>
+          <div class="skeleton-item shimmer"></div>
+          <div class="skeleton-btn shimmer"></div>
+        </div>
+      </div>
+    </div>
+
+    <main class="container" style="margin-top: 120px">
+      <div id="product-details-container" class="product-details-view">
+        <!-- O JavaScript product.js injetará o conteúdo aqui -->
+        <div class="spinner-minimal"></div>
+      </div>
+
+      <!-- Seção de Livros Relacionados -->
+      <section class="related-books-section">
+        <h2 class="poppins-bold section-title">Poderá também gostar</h2>
+        <div id="related-books-grid" class="books-grid"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p class="copyright">© 2026 Viva Leve Saúde e Bem-Estar</p>
+    </footer>
+
+    <script type="module" src="../js/product.js"></script>
+    <script type="module" src="../js/nav-footer.js"></script>
+  </body>
+</html>

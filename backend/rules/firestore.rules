@@ -1,0 +1,30 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Função auxiliar para verificar se o utilizador é um Administrador
+    function isAdmin() {
+      return request.auth != null && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+        // Regra global temporária para desenvolvimento
+    // CUIDADO: Permite leitura/escrita em qualquer coleção até a data limite.
+    match /{document=**} {
+      allow read, write: if request.time < timestamp.date(2026, 6, 30);
+    }
+
+    // Regras específicas para a coleção de livros
+    match /books/{bookId} {
+      allow read: if true; // Catálogo é público
+      allow write: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Regras para a coleção de usuários (essencial para favoritos e perfil)
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
