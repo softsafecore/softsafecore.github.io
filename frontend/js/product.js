@@ -1,6 +1,6 @@
 /**
- * Viva Leve - Product Details Logic
- * Renderiza dinamicamente as informações do livro baseado no ID da URL.
+ * SoftSafe Core - Lógica da Página de Detalhes do Produto
+ * Renderiza dinamicamente as informações do app baseado no ID da URL.
  */
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -19,11 +19,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Elementos do DOM e Estado Inicial
   const container = document.getElementById("product-details-container");
   const params = new URLSearchParams(window.location.search);
-  const bookId = params.get("id"); // Recupera o ID (String)
+  const appId = params.get("id"); // Recupera o ID (String)
   let currentUser = null;
 
   // Recuperar favoritos do LocalStorage para consistência
-  let favorites = JSON.parse(localStorage.getItem("vivaLeveFavorites")) || [];
+  let favorites = JSON.parse(localStorage.getItem("softsafeFavorites")) || [];
   updateFavoritesCount();
 
   // Listener de Autenticação
@@ -33,8 +33,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const userRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(userRef);
       if (docSnap.exists() && docSnap.data().favorites) {
-        favorites = docSnap.data().favorites;
-        localStorage.setItem("vivaLeveFavorites", JSON.stringify(favorites));
+        favorites = docSnap.data().favorites; // Sincroniza com o banco de dados
+        localStorage.setItem("softsafeFavorites", JSON.stringify(favorites));
         updateFavoritesCount();
       }
     }
@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
    * Busca os dados do livro no arquivo JSON e gerencia o estado de carregamento
    */
   async function loadProductDetails() {
-    if (!bookId) {
+    if (!appId) {
       renderError("Produto não encontrado.");
       return;
     }
@@ -141,19 +141,19 @@ document.addEventListener("DOMContentLoaded", () => {
       renderRelatedSkeletons();
 
       // Busca do arquivo JSON
-      const response = await fetch("../json/livros.json");
-      const allBooks = await response.json();
-      const book = allBooks.find(b => b.id.toString() === bookId);
+      const response = await fetch("../json/apps.json");
+      const allApps = await response.json();
+      const app = allApps.find(b => b.id.toString() === appId);
 
-      if (!book) {
-        renderError("O livro solicitado não existe no nosso catálogo.");
+      if (!app) {
+        renderError("O app solicitado não existe em nosso catálogo.");
         return;
       }
 
       // Simulação de delay para visualização do skeleton
       setTimeout(() => {
-        renderProduct(book);
-        loadRelatedBooks(book);
+        renderProduct(app);
+        loadRelatedApps(app);
       }, 600);
     } catch (error) {
       console.error("Erro ao carregar detalhes:", error);
@@ -162,75 +162,90 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /**
-   * Injeta o HTML dinâmico do produto e as meta tags de SEO
-   * @param {Object} book - Objeto contendo os dados do livro
+   * Injeta o HTML dinâmico do app e as meta tags de SEO
+   * @param {Object} app - Objeto contendo os dados do app
    */
-  function renderProduct(book) {
+  function renderProduct(app) {
     // Atualização dinâmica das Meta Tags para SEO e Browser
-    document.title = `${book.titulo} - Viva Leve`;
+    document.title = `${app.titulo} - SoftSafe Core`;
 
     const ogTitle = document.getElementById("og-title");
     const ogDesc = document.getElementById("og-description");
     const ogImg = document.getElementById("og-image");
     const ogUrl = document.getElementById("og-url");
 
-    if (ogTitle) ogTitle.setAttribute("content", book.titulo);
+    if (ogTitle) ogTitle.setAttribute("content", app.titulo);
     if (ogDesc)
-      ogDesc.setAttribute("content", book.descricao || "Saúde e Bem-Estar");
-    if (ogImg) ogImg.setAttribute("content", book.imagem);
+      ogDesc.setAttribute("content", app.descricao || "Apps e Jogos Seguros");
+    if (ogImg) ogImg.setAttribute("content", app.imagem);
     if (ogUrl) ogUrl.setAttribute("content", window.location.href);
 
-    injectJSONLD(book);
+    injectJSONLD(app);
 
-    // Validação de Segurança: Se não houver chave do Payhip, falha graciosamente
-    if (!book.payhip_key || book.payhip_key === "XXXXX") {
-      renderError(`
-        <div class="error-container">
-          <i class="ph ph-warning-circle" style="font-size: 3rem; color: var(--verde-brilho);"></i>
-          <h2 class="poppins-bold">Produto em Manutenção</h2>
-          <p>O checkout para este e-book está a ser atualizado. Por favor, tente novamente em alguns minutos.</p>
-          <a href="../index.html" class="btn-member">Explorar Outros Livros</a>
-        </div>
-      `);
-      return;
-    }
+    const isFavorite = favorites.some(fav => fav.id.toString() === app.id.toString());
+    const price = app.preco || 0;
 
-    // Injeção Dinâmica do Container alvo do Payhip
     container.innerHTML = `
-      <div class="payhip-integration-wrapper fade-in-node">
-        <nav class="breadcrumb-nav">
-           <a href="../index.html" class="btn-back">
-             <i class="ph ph-arrow-left"></i> Voltar ao Catálogo
-           </a>
-        </nav>
-        
-        <div class="payhip-embed-page" data-key="${book.payhip_key}">
-          <div class="payhip-placeholder-loading">
-            <div class="spinner-minimal"></div>
-            <p class="poppins-light">A preparar o seu checkout seguro...</p>
+      <a href="../index.html" class="btn-back"><i class="ph ph-arrow-left"></i> Voltar ao Catálogo</a>
+      <div class="product-page-wrapper fade-in-node">
+        <!-- Coluna da Imagem e Galeria -->
+        <div class="product-media">
+          <img src="${app.imagem}" alt="${app.titulo}" class="product-main-image img-loaded">
+          <div class="screenshot-gallery">
+            ${(app.screenshots || []).map(ss => `<img src="${ss}" alt="Screenshot de ${app.titulo}" class="screenshot-thumb">`).join('')}
+          </div>
+        </div>
+
+        <!-- Coluna de Informações e Ações -->
+        <div class="product-content">
+          <p class="breadcrumb">${app.categoria_tag || 'Software'}</p>
+          <h1 class="product-title">${app.titulo}</h1>
+          <p class="product-author">Desenvolvido por <span>${app.desenvolvedor}</span></p>
+
+          <div class="product-meta-grid">
+            <div class="meta-item"><span>Versão</span>${app.versao || 'N/A'}</div>
+            <div class="meta-item"><span>Tamanho</span>${app.tamanho || 'N/A'}</div>
+            <div class="meta-item"><span>Plataforma</span>${app.plataforma || 'N/A'}</div>
+          </div>
+
+          <div class="product-price-row">
+            <span class="product-price">${price === 0 ? "Grátis" : price.toFixed(2) + " " + (app.moeda || "MT")}</span>
+            <button id="fav-btn" class="btn-favorite-large ${isFavorite ? 'active' : ''}">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="heart-icon"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+              <span class="fav-text">${isFavorite ? 'FAVORITADO' : 'ADICIONAR AOS FAVORITOS'}</span>
+            </button>
+          </div>
+
+          <div class="product-actions">
+            <a href="https://payhip.com/b/${app.payhip_key}" class="payhip-buy-button btn-buy-now" data-theme="none">Obter Agora</a>
+            <button id="share-btn" class="btn-share"><i class="ph ph-share-network"></i> Partilhar</button>
+          </div>
+
+          <div class="product-description">
+            <h2>Sobre este App</h2>
+            <p>${app.descricao || 'Nenhuma descrição disponível.'}</p>
           </div>
         </div>
       </div>
     `;
 
-    // --- ESTRATÉGIA DE HYDRATION SÉNIOR ---
-    // O script do Payhip precisa que a div .payhip-embed-page exista ANTES da execução
-    const payhipScript = document.createElement('script');
-    payhipScript.type = 'text/javascript';
+    // Adiciona listeners aos botões recém-criados
+    document.getElementById('fav-btn').addEventListener('click', (e) => toggleFavorite(e, app));
+    document.getElementById('share-btn').addEventListener('click', () => handleShare(app));
 
-    // Cache busting evita que versões antigas do widget interfiram na renderização dinâmica
-    const cacheBuster = Math.random().toString(36).substring(7);
-    payhipScript.src = `https://payhip.com/embed-page.js?v=${cacheBuster}`;
-
-    payhipScript.onload = () => {
-      console.log("Viva Leve: Widget do Payhip carregado com sucesso.");
-    };
-
-    payhipScript.onerror = () => {
-      renderError("Não foi possível carregar o sistema de pagamento. Por favor, tente mais tarde.");
-    };
-
-    document.body.appendChild(payhipScript);
+    // Lógica da galeria de screenshots
+    const mainImage = document.querySelector('.product-main-image');
+    const thumbs = document.querySelectorAll('.screenshot-thumb');
+    thumbs.forEach(thumb => {
+      thumb.addEventListener('click', () => {
+        // Troca a imagem principal com efeito de fade
+        mainImage.style.opacity = 0;
+        setTimeout(() => {
+          mainImage.src = thumb.src;
+          mainImage.style.opacity = 1;
+        }, 200);
+      });
+    });
   }
 
   /**
@@ -251,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.clearAllFavorites = () => {
     favorites = [];
-    localStorage.setItem("vivaLeveFavorites", JSON.stringify(favorites));
+    localStorage.setItem("softsafeFavorites", JSON.stringify(favorites));
     updateFavoritesCount();
     renderFavoritesDrawer();
 
@@ -267,7 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!content) return;
 
     if (favorites.length === 0) {
-      content.innerHTML = `<p class="empty-drawer-msg">Ainda não tens livros nos teus favoritos.</p>`;
+      content.innerHTML = `<p class="empty-drawer-msg">Ainda não tens apps nos teus favoritos.</p>`;
       return;
     }
 
@@ -279,16 +294,16 @@ document.addEventListener("DOMContentLoaded", () => {
     ` +
       favorites
         .map(
-          (book) => `
+          (app) => `
       <div class="drawer-item">
-        <div class="drawer-item-clickable" onclick="window.location.href='product.html?id=${book.id}'">
-          <img src="${book.imagem}" alt="${book.titulo}">
+        <div class="drawer-item-clickable" onclick="window.location.href='product.html?id=${app.id}'">
+          <img src="${app.imagem}" alt="${app.titulo}">
           <div class="drawer-item-info">
-            <span class="drawer-item-title">${book.titulo}</span>
-            <span class="drawer-item-author">${book.autor}</span>
+            <span class="drawer-item-title">${app.titulo}</span>
+            <span class="drawer-item-author">${app.desenvolvedor}</span>
           </div>
         </div>
-        <button class="btn-remove-fav" onclick="removeFromDrawer('${book.id}')">Remover</button>
+        <button class="btn-remove-fav" onclick="removeFromDrawer('${app.id}')">Remover</button>
       </div>
     `,
         )
@@ -296,8 +311,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   window.removeFromDrawer = async (id) => {
-    favorites = favorites.filter((fav) => fav.id !== id);
-    localStorage.setItem("vivaLeveFavorites", JSON.stringify(favorites));
+    favorites = favorites.filter((fav) => fav.id.toString() !== id.toString());
+    localStorage.setItem("softsafeFavorites", JSON.stringify(favorites));
     updateFavoritesCount();
     renderFavoritesDrawer();
 
@@ -306,8 +321,8 @@ document.addEventListener("DOMContentLoaded", () => {
       await updateDoc(userRef, { favorites: favorites });
     }
 
-    // Se o livro removido for o que estamos a visualizar, atualiza o botão da página
-    if (bookId === id) {
+    // Se o app removido for o que estamos a visualizar, atualiza o botão da página
+    if (appId === id) {
       const favBtn = document.getElementById("fav-btn");
       if (favBtn) {
         favBtn.classList.remove("active");
@@ -327,18 +342,18 @@ document.addEventListener("DOMContentLoaded", () => {
     ?.addEventListener("click", openFavoritesDrawer);
 
   /**
-   * Renderiza livros da mesma categoria (Relacionados)
+   * Renderiza apps da mesma categoria (Relacionados)
    */
-  async function loadRelatedBooks(currentBook) {
+  async function loadRelatedApps(currentApp) {
     const relatedGrid = document.getElementById("related-books-grid");
     if (!relatedGrid) return;
 
-    // Busca livros relacionados do JSON
-    const response = await fetch("../json/livros.json");
-    const allBooks = await response.json();
+    // Busca apps relacionados do JSON
+    const response = await fetch("../json/apps.json");
+    const allApps = await response.json();
 
-    const related = allBooks
-      .filter(b => b.categoria_tag === currentBook.categoria_tag && b.id.toString() !== currentBook.id.toString())
+    const related = allApps
+      .filter(b => b.categoria_tag === currentApp.categoria_tag && b.id.toString() !== currentApp.id.toString())
       .slice(0, 4);
 
     if (related.length === 0) {
@@ -347,13 +362,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     relatedGrid.innerHTML = related
-      .map((book, index) => {
+      .map((app, index) => {
         return `
-        <article class="book-card fade-in-node" style="animation-delay: ${index * 0.1}s" onclick="window.location.href='product.html?id=${book.id}'">
-            <img src="${book.imagem}" alt="${book.titulo}" class="book-cover" loading="lazy" onload="this.classList.add('img-loaded')">
+        <article class="book-card fade-in-node" style="animation-delay: ${index * 0.1}s" onclick="window.location.href='product.html?id=${app.id}'">
+            <img src="${app.imagem}" alt="${app.titulo}" class="book-cover" loading="lazy" onload="this.classList.add('img-loaded')">
             <div class="book-info">
-                <h3 class="book-title">${book.titulo}</h3>
-                <span class="book-price">${book.preco === 0 ? "GRÁTIS" : book.preco.toFixed(2) + " MT"}</span>
+                <h3 class="book-title">${app.titulo}</h3>
+                <span class="book-price">${app.preco === 0 ? "Grátis" : app.preco.toFixed(2) + " MT"}</span>
             </div>
         </article>
       `;
@@ -362,10 +377,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /**
-   * Injeta dados estruturados (JSON-LD) para otimização de Rich Snippets no Google
-   * @param {Object} book
+   * Injeta dados estruturados (JSON-LD) para otimização de Rich Snippets
+   * @param {Object} app
    */
-  function injectJSONLD(book) {
+  function injectJSONLD(app) {
     // Remove script anterior se existir (evita duplicados em SPAs ou navegação interna)
     const existingScript = document.getElementById("json-ld-product");
     if (existingScript) existingScript.remove();
@@ -377,15 +392,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // Define a raiz do site para garantir links absolutos corretos no Breadcrumb
     const siteRoot = window.location.origin + "/";
 
-    const bookSchema = {
-      "@type": "Book",
-      name: book.titulo,
-      author: { "@type": "Person", name: book.autor },
-      image: book.imagem,
-      description: book.descricao || "Saúde e Bem-Estar",
+    const appSchema = {
+      "@type": "SoftwareApplication",
+      name: app.titulo,
+      applicationCategory: app.categoria_tag,
+      operatingSystem: app.plataforma,
+      image: app.imagem,
+      description: app.descricao || "Apps e Jogos Seguros",
       offers: {
         "@type": "Offer",
-        price: book.preco,
+        price: app.preco,
         priceCurrency: "MZN",
         availability: "https://schema.org/InStock",
       },
@@ -403,13 +419,13 @@ document.addEventListener("DOMContentLoaded", () => {
         {
           "@type": "ListItem",
           position: 2,
-          name: book.categoria || "Catálogo",
-          item: `${siteRoot}index.html?tag=${book.categoriaTag}`,
+          name: app.categoria_tag || "Catálogo",
+          item: `${siteRoot}index.html?tag=${app.categoria_tag}`,
         },
         {
           "@type": "ListItem",
           position: 3,
-          name: book.titulo,
+          name: app.titulo,
           item: window.location.href,
         },
       ],
@@ -417,20 +433,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     script.text = JSON.stringify({
       "@context": "https://schema.org",
-      "@graph": [bookSchema, breadcrumbSchema],
+      "@graph": [appSchema, breadcrumbSchema],
     });
 
     document.head.appendChild(script);
   }
 
   /**
-   * Gerencia a partilha nativa (Web Share API) ou copia o link no Desktop
-   * @param {Object} book
+   * Gerencia a partilha nativa (Web Share API) ou copia o link
+   * @param {Object} app
    */
-  async function handleShare(book) {
+  async function handleShare(app) {
     const shareData = {
-      title: `Viva Leve - ${book.titulo}`,
-      text: `Dá uma olhadela neste livro: "${book.titulo}" de ${book.autor}. Encontrei na Viva Leve!`,
+      title: `SoftSafe Core - ${app.titulo}`,
+      text: `Dá uma olhada neste app: "${app.titulo}". Encontrei no SoftSafe Core!`,
       url: window.location.href,
     };
 
@@ -451,16 +467,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /**
-   * Alterna o estado de favorito de um livro e persiste no LocalStorage
+   * Alterna o estado de favorito de um app e persiste no LocalStorage
    * @param {Event} event
-   * @param {Object} book
+   * @param {Object} app
    */
-  async function toggleFavorite(event, book) {
+  async function toggleFavorite(event, app) {
     const btn = event.currentTarget;
-    const index = favorites.findIndex((fav) => fav.id === book.id);
+    const index = favorites.findIndex((fav) => fav.id.toString() === app.id.toString());
 
     if (index === -1) {
-      favorites.push(book);
+      favorites.push(app);
       btn.classList.add("active");
       btn.querySelector(".fav-text").innerText = "FAVORITADO";
       triggerCounterAnimation();
@@ -471,7 +487,7 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.querySelector(".fav-text").innerText = "ADICIONAR AOS FAVORITOS";
     }
 
-    localStorage.setItem("vivaLeveFavorites", JSON.stringify(favorites));
+    localStorage.setItem("softsafeFavorites", JSON.stringify(favorites));
 
     if (currentUser) {
       const userRef = doc(db, "users", currentUser.uid);
@@ -481,11 +497,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /**
-   * Renderiza uma mensagem de erro caso o produto não seja encontrado
+   * Renderiza uma mensagem de erro
    * @param {string} msg
    */
   function renderError(msg) {
-    container.innerHTML = `<div class="error-state"><p>${msg}</p><a href="index.html">Voltar ao catálogo</a></div>`;
+    container.innerHTML = `<div class="error-state" style="text-align: center; padding: 40px;"><p>${msg}</p><a href="../index.html" class="btn-member" style="margin-top: 20px; display: inline-block;">Voltar ao Catálogo</a></div>`;
   }
 
   /**
