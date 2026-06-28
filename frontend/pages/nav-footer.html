@@ -1,4 +1,4 @@
-<!-- Componentes Dinâmicos "Viva Leve" -->
+<!-- Componentes Dinâmicos "SoftSafe Core" -->
 <template id="navbar-template">
   <header class="main-header">
     <nav class="navbar container-layout">
@@ -10,7 +10,7 @@
             alt="Logo"
             class="logo-img dynamic-asset"
           />
-          <span class="logo-text">VIVA<span>LEVE</span></span>
+          <span class="logo-text">SoftSafe<span>CORE</span></span>
         </a>
       </div>
 
@@ -20,7 +20,7 @@
           <i class="fa-solid fa-magnifying-glass"></i>
           <input
             type="text"
-            placeholder="Pesquisar livros..."
+            placeholder="Pesquisar apps..."
             id="global-search"
           />
         </div>
@@ -34,7 +34,7 @@
             <input
               type="text"
               id="mobile-search"
-              placeholder="Pesquisar livros..."
+              placeholder="Pesquisar apps..."
             />
             <i class="fa-solid fa-magnifying-glass search-icon-mobile"></i>
             <i
@@ -45,14 +45,21 @@
 
           <li>
             <a href="#" class="nav-link dynamic-link" data-href="index.html"
-              ><i class="fa-solid fa-book-open"></i><span>Catálogo</span></a
+              ><i class="fa-solid fa-th-large"></i><span>Catálogo</span></a
             >
           </li>
           <li>
-            <a href="#" class="nav-link" id="about-trigger"><i class="fa-solid fa-circle-info"></i><span>Sobre</span></a>
+            <a href="#" class="nav-link" id="about-trigger"
+              ><i class="fa-solid fa-circle-info"></i><span>Sobre</span></a
+            >
           </li>
           <li>
-            <div class="wishlist-counter-container nav-link" id="fav-trigger" role="button" aria-label="Abrir Favoritos">
+            <div
+              class="wishlist-counter-container nav-link"
+              id="fav-trigger"
+              role="button"
+              aria-label="Abrir Favoritos"
+            >
               <i class="fa-solid fa-heart"></i>
               <!-- O texto é envolvido em span para melhor controle de gap via flexbox -->
               <span class="nav-item-label">Favoritos</span>
@@ -90,11 +97,21 @@
       <header class="fav-modal-header">
         <div class="fav-header-content">
           <h2>❤️ Meus Favoritos <span id="modal-fav-badge">(0)</span></h2>
-          <button class="fav-modal-close" id="fav-modal-close" aria-label="Fechar Modal">✕</button>
+          <button
+            class="fav-modal-close"
+            id="fav-modal-close"
+            aria-label="Fechar Modal"
+          >
+            ✕
+          </button>
         </div>
         <div class="fav-search-wrapper">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" id="fav-modal-search" placeholder="Pesquisar nos meus favoritos...">
+          <input
+            type="text"
+            id="fav-modal-search"
+            placeholder="Pesquisar nos meus favoritos..."
+          />
         </div>
       </header>
 
@@ -102,11 +119,13 @@
         <!-- Lista de Cards Injetada via JS -->
       </div>
 
-      <div id="fav-empty-state" class="fav-empty-state" style="display: none;">
+      <div id="fav-empty-state" class="fav-empty-state" style="display: none">
         <div class="empty-icon">❤️</div>
         <h3>Nenhum favorito encontrado</h3>
         <p>Adicione livros aos favoritos para encontrá-los rapidamente aqui.</p>
-        <button class="btn-explore-catalog" id="btn-explore-fav">Explorar Catálogo</button>
+        <button class="btn-explore-catalog" id="btn-explore-fav">
+          Explorar Catálogo
+        </button>
       </div>
     </div>
   </div>
@@ -117,60 +136,93 @@
     <div class="about-modal-container">
       <canvas id="about-particles-canvas"></canvas>
       <button class="about-modal-close">✕</button>
-      
+
       <div class="about-modal-content">
         <!-- Cabeçalho -->
         <header class="about-header">
           <div class="about-brand">
-            <span class="about-icon">🌿</span>
-            <h1>Viva Leve <span>Saúde & Bem-Estar</span></h1>
+            <span class="about-icon">🛡️</span>
+            <h1>SoftSafe Core <span>App & Game Library</span></h1>
           </div>
-          <p class="about-subtitle">Livraria Digital de Saúde, Bem-Estar e Desenvolvimento Pessoal</p>
+          <p class="about-subtitle">
+            Sua fonte segura para os melhores apps e jogos.
+          </p>
         </header>
 
         <!-- Seção Quem Somos -->
         <section class="about-section about-intro">
           <h2 class="poppins-bold">Quem somos?</h2>
-          <p>A <strong>Vivalevee</strong> é uma livraria digital independente especializada em saúde e bem-estar. Oferecemos e-books e guias práticos sobre nutrição, motivação e inteligência emocional, com foco em ajudar pessoas a viverem melhor.</p>
-          <p>Nosso diferencial é a curadoria de conteúdos acessíveis e inspiradores, pensados para quem busca crescimento pessoal, equilíbrio emocional e qualidade de vida.</p>
+          <p>
+            A <strong>SoftSafe Core</strong> é uma plataforma digital dedicada à
+            curadoria de aplicativos e jogos. Nossa missão é oferecer um
+            catálogo seguro e de alta qualidade, com análises detalhadas para
+            ajudar os usuários a fazerem as melhores escolhas.
+          </p>
+          <p>
+            Nosso diferencial é o foco na segurança e na experiência do usuário,
+            garantindo que cada software em nossa biblioteca seja verificado e
+            confiável.
+          </p>
         </section>
 
         <!-- Cartões de Valores -->
         <div class="about-values-grid">
           <div class="value-card">
-            <div class="value-icon">🥗</div>
-            <h3>Saúde</h3>
-            <p>Conteúdos focados em hábitos saudáveis e bem-estar físico.</p>
+            <div class="value-icon">🛡️</div>
+            <h3>Segurança</h3>
+            <p>Apps verificados para garantir a sua privacidade e segurança.</p>
           </div>
           <div class="value-card">
             <div class="value-icon">🧠</div>
             <h3>Inteligência Emocional</h3>
-            <p>Materiais para fortalecer a mente, autoestima e equilíbrio emocional.</p>
+            <p>
+              Materiais para fortalecer a mente, autoestima e equilíbrio
+              emocional.
+            </p>
           </div>
           <div class="value-card">
             <div class="value-icon">🚀</div>
-            <h3>Crescimento Pessoal</h3>
-            <p>Guias práticos para evolução contínua e desenvolvimento humano.</p>
+            <h3>Qualidade</h3>
+            <p>
+              Curadoria de apps e jogos com as melhores avaliações e
+              funcionalidades.
+            </p>
           </div>
         </div>
 
         <!-- Estatísticas -->
         <div class="about-stats-flex">
-          <div class="stat-badge">📚 <span class="stat-number" data-target="500">0</span>+ Títulos</div>
-          <div class="stat-badge">❤️ <span class="stat-number" data-target="15">0</span>k+ Leitores</div>
-          <div class="stat-badge">🌎 <span class="stat-number" data-target="100">0</span>% Digital</div>
-          <div class="stat-badge">✨ <span class="stat-number" data-target="24">0</span>/7 Acesso</div>
+          <div class="stat-badge">
+            📚 <span class="stat-number" data-target="500">0</span>+ Títulos
+          </div>
+          <div class="stat-badge">
+            ❤️ <span class="stat-number" data-target="15">0</span>k+ Leitores
+          </div>
+          <div class="stat-badge">
+            🌎 <span class="stat-number" data-target="100">0</span>% Digital
+          </div>
+          <div class="stat-badge">
+            ✨ <span class="stat-number" data-target="24">0</span>/7 Acesso
+          </div>
         </div>
 
         <!-- Missão -->
         <blockquote class="about-mission">
           <h2 class="poppins-bold">Nossa Missão</h2>
-          <p>"Acreditamos que o conhecimento transforma vidas. Nossa missão é tornar conteúdos de saúde, motivação e desenvolvimento pessoal mais acessíveis para todos."</p>
+          <p>
+            "Acreditamos que a tecnologia deve ser segura e acessível. Nossa
+            missão é ser a sua fonte mais confiável para descobrir e baixar
+            aplicativos e jogos incríveis."
+          </p>
         </blockquote>
 
         <!-- Ações -->
         <footer class="about-footer">
-          <button class="btn-about-action primary" id="btn-about-catalog">
+          <button
+            class="btn-about-action primary"
+            id="btn-about-catalog"
+            style="background: var(--verde-logo)"
+          >
             <i class="fa-solid fa-book"></i> Explorar Catálogo
           </button>
           <button class="btn-about-action secondary" id="btn-about-fav">
@@ -189,16 +241,28 @@
           <span class="cookie-icon">🍪</span>
           <h3>Sua privacidade importa</h3>
         </div>
-        <p>Utilizamos cookies para melhorar sua experiência, personalizar conteúdos e analisar o tráfego da plataforma. Você pode aceitar, rejeitar ou personalizar suas preferências a qualquer momento.</p>
+        <p>
+          Utilizamos cookies para melhorar sua experiência, personalizar
+          conteúdos e analisar o tráfego da plataforma. Você pode aceitar,
+          rejeitar ou personalizar suas preferências a qualquer momento.
+        </p>
         <div class="cookie-links">
-          <a href="frontend/pages/privacy.html" target="_blank">📜 Política de Privacidade</a>
+          <a href="frontend/pages/privacy.html" target="_blank"
+            >📜 Política de Privacidade</a
+          >
           <a href="#" target="_blank">🍪 Política de Cookies</a>
         </div>
       </div>
       <div class="cookie-actions">
-        <button id="btn-accept-all-cookies" class="btn-cookie-primary">Aceitar Todos</button>
-        <button id="btn-customize-cookies" class="btn-cookie-secondary">⚙️ Personalizar</button>
-        <button id="btn-reject-all-cookies" class="btn-cookie-discreet">✕ Recusar</button>
+        <button id="btn-accept-all-cookies" class="btn-cookie-primary">
+          Aceitar Todos
+        </button>
+        <button id="btn-customize-cookies" class="btn-cookie-secondary">
+          ⚙️ Personalizar
+        </button>
+        <button id="btn-reject-all-cookies" class="btn-cookie-discreet">
+          ✕ Recusar
+        </button>
       </div>
     </div>
   </div>
@@ -210,17 +274,22 @@
       <button class="close-modal">✕</button>
       <div class="modal-content">
         <h2>Personalizar Preferências</h2>
-        <p class="modal-intro">Gerencie como utilizamos os cookies para melhorar sua jornada.</p>
-        
+        <p class="modal-intro">
+          Gerencie como utilizamos os cookies para melhorar sua jornada.
+        </p>
+
         <div class="cookie-prefs-list">
           <!-- Essenciais -->
           <div class="pref-item disabled">
             <div class="pref-info">
               <h4>Cookies Essenciais</h4>
-              <p>Necessários para o funcionamento do site e segurança. Não podem ser desativados.</p>
+              <p>
+                Necessários para o funcionamento do site e segurança. Não podem
+                ser desativados.
+              </p>
             </div>
             <label class="ios-switch">
-              <input type="checkbox" checked disabled>
+              <input type="checkbox" checked disabled />
               <span class="switch-slider"></span>
             </label>
           </div>
@@ -228,10 +297,13 @@
           <div class="pref-item">
             <div class="pref-info">
               <h4>Cookies Analíticos</h4>
-              <p>Ajudam-nos a entender como os visitantes interagem com o site, coletando informações anonimamente.</p>
+              <p>
+                Ajudam-nos a entender como os visitantes interagem com o site,
+                coletando informações anonimamente.
+              </p>
             </div>
             <label class="ios-switch">
-              <input type="checkbox" id="pref-analytics">
+              <input type="checkbox" id="pref-analytics" />
               <span class="switch-slider"></span>
             </label>
           </div>
@@ -239,15 +311,23 @@
           <div class="pref-item">
             <div class="pref-info">
               <h4>Cookies de Marketing</h4>
-              <p>Utilizados para rastrear visitantes em sites para exibir anúncios relevantes e envolventes.</p>
+              <p>
+                Utilizados para rastrear visitantes em sites para exibir
+                anúncios relevantes e envolventes.
+              </p>
             </div>
             <label class="ios-switch">
-              <input type="checkbox" id="pref-marketing">
+              <input type="checkbox" id="pref-marketing" />
               <span class="switch-slider"></span>
             </label>
           </div>
         </div>
-        <button id="btn-save-cookie-prefs" class="btn-cookie-primary save-prefs">Salvar Preferências</button>
+        <button
+          id="btn-save-cookie-prefs"
+          class="btn-cookie-primary save-prefs"
+        >
+          Salvar Preferências
+        </button>
       </div>
     </div>
   </div>
@@ -264,16 +344,24 @@
         </div>
       </div>
       <nav class="footer-nav">
-        <a href="#" id="open-about-footer"><i class="fa-solid fa-circle-info"></i> Sobre</a>
-        <a href="#" id="open-privacy"><i class="fa-solid fa-shield-halved"></i> Privacidade</a>
-        <a href="#" id="open-cookie-prefs"><i class="fa-solid fa-cookie-bite"></i> Cookies</a>
+        <a href="#" id="open-about-footer"
+          ><i class="fa-solid fa-circle-info"></i> Sobre</a
+        >
+        <a href="#" id="open-privacy"
+          ><i class="fa-solid fa-shield-halved"></i> Privacidade</a
+        >
+        <a href="#" id="open-cookie-prefs"
+          ><i class="fa-solid fa-cookie-bite"></i> Cookies</a
+        >
         <div class="footer-socials">
           <a href="#"><i class="ph ph-instagram-logo"></i></a>
           <a href="#"><i class="ph ph-facebook-logo"></i></a>
         </div>
       </nav>
       <hr class="footer-divider" />
-      <p class="copyright">© 2026 Viva Leve Saúde e Bem-Estar</p>
+      <p class="copyright">
+        © 2026 SoftSafe Core. Todos os direitos reservados.
+      </p>
     </div>
   </footer>
 
@@ -284,14 +372,32 @@
       <button class="close-modal">✕</button>
       <div class="modal-content">
         <h2 class="poppins-bold">Política de Privacidade</h2>
-        <div class="modal-body">
-          <p>A sua privacidade é importante para nós. É política do <strong>Viva Leve</strong> respeitar a sua privacidade em relação a qualquer informação sua que possamos coletar no site.</p>
-          
-          <p>Retemos as informações coletadas apenas pelo tempo necessário para fornecer o serviço solicitado. Quando armazenamos dados, protegemo-los dentro de meios comercialmente aceitáveis para evitar perdas e roubos, bem como acesso, divulgação, cópia, uso ou modificação não autorizados.</p>
+        <div class="modal-body" style="text-align: justify">
+          <p>
+            A sua privacidade é importante para nós. É política do
+            <strong>SoftSafe Core</strong> respeitar a sua privacidade em
+            relação a qualquer informação sua que possamos coletar no site.
+          </p>
 
-          <p>Não compartilhamos informações de identificação pessoal publicamente ou com terceiros, exceto quando exigido por lei.</p>
+          <p>
+            Retemos as informações coletadas apenas pelo tempo necessário para
+            fornecer o serviço solicitado. Quando armazenamos dados,
+            protegemo-los dentro de meios comercialmente aceitáveis para evitar
+            perdas e roubos, bem como acesso, divulgação, cópia, uso ou
+            modificação não autorizados.
+          </p>
 
-          <p>O uso continuado de nosso site será considerado como aceitação de nossas práticas em torno de privacidade e informações pessoais. Se você tiver alguma dúvida sobre como lidamos com dados do usuário e informações pessoais, entre em contato conosco.</p>
+          <p>
+            Não compartilhamos informações de identificação pessoal publicamente
+            ou com terceiros, exceto quando exigido por lei.
+          </p>
+
+          <p>
+            O uso continuado de nosso site será considerado como aceitação de
+            nossas práticas em torno de privacidade e informações pessoais. Se
+            você tiver alguma dúvida sobre como lidamos com dados do usuário e
+            informações pessoais, entre em contato.
+          </p>
         </div>
       </div>
     </div>

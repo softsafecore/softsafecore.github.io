@@ -1,5 +1,5 @@
 /**
- * Viva Leve - Lógica Principal (Catálogo, Filtros e Newsletter)
+ * SoftSafe Core - Lógica Principal (Catálogo, Filtros e Newsletter)
  */
 import { auth, db, analytics } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -16,8 +16,8 @@ import { signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth
 import { CONFIG } from "./config.js";
 import "./vv-image.js";
 
-let allBooks = [];
-let favorites = JSON.parse(localStorage.getItem("vivaLeveFavorites")) || [];
+let allApps = [];
+let favorites = JSON.parse(localStorage.getItem("softsafeFavorites")) || [];
 let currentUser = null;
 
 /**
@@ -45,11 +45,11 @@ const normalizarTexto = (texto) => {
 };
 
 const categoryMap = {
-  alimentacao: "Alimentação Saudável",
-  conto: "Conto",
-  romance: "Romance",
-  mental: "Saúde Mental & Emocional",
-  fantasias: "Ficção & Fantasias",
+  produtividade: "Produtividade",
+  jogos: "Jogos",
+  utilitarios: "Utilitários",
+  seguranca: "Segurança",
+  design: "Design",
 };
 
 const booksGrid = document.getElementById("books-grid");
@@ -71,23 +71,23 @@ async function init() {
     renderSkeletons(); // Mostra o loading antes do fetch
 
     // Busca direta do arquivo JSON
-    const response = await fetch("frontend/json/livros.json");
+    const response = await fetch("frontend/json/apps.json");
     if (!response.ok) throw new Error("Falha ao carregar o arquivo JSON");
-    allBooks = await response.json();
+    allApps = await response.json();
 
-    if (allBooks.length === 0) {
-      booksGrid.innerHTML = `<p class="empty-msg">O catálogo está vazio. Adicione livros pelo painel de administrador.</p>`;
+    if (allApps.length === 0) {
+      booksGrid.innerHTML = `<p class="empty-msg">O catálogo está vazio. Adicione apps pelo painel de administrador.</p>`;
       return;
     }
 
     // Simulando um pequeno delay para que o skeleton seja visível (opcional)
     setTimeout(() => {
       changeBackgroundByCategory("all"); // Aplica cor de fundo padrão
-      renderBooks(allBooks);
+      renderApps(allApps);
       updateFavoritesUI();
     }, 800);
   } catch (error) {
-    console.error("Viva Leve Debug - Falha ao buscar catálogo:", error);
+    console.error("SoftSafe Core Debug - Falha ao buscar catálogo:", error);
     booksGrid.innerHTML = `
       <div class="error-state" style="text-align: center; padding: 40px; grid-column: 1/-1;">
         <i class="ph ph-warning-circle" style="font-size: 3rem; color: var(--accent-orange);"></i>
@@ -127,11 +127,11 @@ function changeBackgroundByCategory(category) {
   // Remove todas as classes de categoria
   document.body.classList.remove(
     "category-all",
-    "category-alimentacao",
-    "category-conto",
-    "category-romance",
-    "category-mental",
-    "category-fantasias",
+    "category-produtividade",
+    "category-jogos",
+    "category-utilitarios",
+    "category-seguranca",
+    "category-design",
   );
 
   // Adiciona a classe da categoria selecionada
@@ -139,39 +139,39 @@ function changeBackgroundByCategory(category) {
 }
 
 /**
- * Renderiza a grade de livros dinamicamente
- * @param {Array} books
+ * Renderiza a grade de apps dinamicamente
+ * @param {Array} apps
  * @param {string} query - Termo opcional para destaque
  */
-function renderBooks(books, query = "") {
-  booksGrid.innerHTML = books
-    .map((book, index) => {
-      const isFav = favorites.some((fav) => fav.id?.toString() === book.id?.toString());
-      const price = book.preco || 0;
+function renderApps(apps, query = "") {
+  booksGrid.innerHTML = apps
+    .map((app, index) => {
+      const isFav = favorites.some((fav) => fav.id?.toString() === app.id?.toString());
+      const price = app.preco || 0;
 
       const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
       // Aplica o destaque se houver uma pesquisa ativa
       const displayTitle = query
-        ? book.titulo.replace(new RegExp(`(${escapedQuery})`, "gi"), '<mark class="search-highlight">$1</mark>')
-        : book.titulo;
+        ? app.titulo.replace(new RegExp(`(${escapedQuery})`, "gi"), '<mark class="search-highlight">$1</mark>')
+        : app.titulo;
 
       return `
-        <article class="book-card fade-in-node" style="animation-delay: ${index * 0.05}s" data-category="${book.categoria_tag}">
+        <article class="book-card fade-in-node" style="animation-delay: ${index * 0.05}s" data-category="${app.categoria_tag}">
             <div style="position: relative;">
-              <vv-image src="${book.imagem}" alt="${book.titulo}" img-class="book-cover"></vv-image>
+              <vv-image src="${app.imagem}" alt="${app.titulo}" img-class="book-cover"></vv-image>
             </div>
             <div class="book-info">
                 <h3 class="book-title">${displayTitle}</h3>
-                <span class="book-price">${price === 0 ? "Grátis" : price.toFixed(2) + " " + (book.moeda || "MT")}</span>
+                <span class="book-price">${price === 0 ? "Grátis" : price.toFixed(2) + " " + (app.moeda || "MT")}</span>
                 
                 <div class="book-actions">
-                  <a href="https://payhip.com/b/${book.payhip_key}" class="payhip-buy-button btn-buy-direct" data-theme="none" data-product="${book.id}">
-                    Comprar Agora
+                  <a href="https://payhip.com/b/${app.payhip_key}" class="payhip-buy-button btn-buy-direct" data-theme="none" data-product="${app.id}">
+                    Obter Agora
                   </a>
                 </div>
             </div>
-            <button class="btn-favorite ${isFav ? "active" : ""}" onclick="addToFavorites(event, '${book.id}')" aria-label="Adicionar aos favoritos">
+            <button class="btn-favorite ${isFav ? "active" : ""}" onclick="addToFavorites(event, '${app.id}')" aria-label="Adicionar aos favoritos">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="heart-icon">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
               </svg>
@@ -183,7 +183,7 @@ function renderBooks(books, query = "") {
 }
 
 /**
- * Adiciona ou remove um livro dos favoritos via clique no ícone de coração
+ * Adiciona ou remove um app dos favoritos via clique no ícone de coração
  * @param {Event} event
  * @param {number} id
  */
@@ -191,14 +191,14 @@ window.addToFavorites = async (event, id) => {
   // Impede que o clique no botão de favorito dispare o clique do card (redirecionamento)
   event.stopPropagation();
 
-  const book = allBooks.find((b) => b.id.toString() === id.toString());
-  if (!book) return;
+  const app = allApps.find((b) => b.id.toString() === id.toString());
+  if (!app) return;
 
   const index = favorites.findIndex((fav) => fav.id.toString() === id.toString());
   const btn = event.currentTarget;
 
   if (index === -1) {
-    favorites.push(book);
+    favorites.push(app);
     btn.classList.add("active");
     triggerCounterAnimation();
     openFavoritesDrawer();
@@ -207,7 +207,7 @@ window.addToFavorites = async (event, id) => {
     btn.classList.remove("active");
   }
 
-  localStorage.setItem("vivaLeveFavorites", JSON.stringify(favorites));
+  localStorage.setItem("softsafeFavorites", JSON.stringify(favorites));
 
   if (currentUser) {
     const userRef = doc(db, "users", currentUser.uid);
@@ -219,10 +219,10 @@ window.addToFavorites = async (event, id) => {
 
 window.clearAllFavorites = () => {
   favorites = [];
-  localStorage.setItem("vivaLeveFavorites", JSON.stringify(favorites));
+  localStorage.setItem("softsafeFavorites", JSON.stringify(favorites));
   updateFavoritesUI();
   renderFavoritesDrawer();
-  renderBooks(allBooks);
+  renderApps(allApps);
 };
 
 /**
@@ -246,7 +246,7 @@ function renderFavoritesDrawer() {
   if (!content) return;
 
   if (favorites.length === 0) {
-    content.innerHTML = `<p class="empty-drawer-msg">Ainda não tens livros nos teus favoritos.</p>`;
+    content.innerHTML = `<p class="empty-drawer-msg">Ainda não tens apps nos teus favoritos.</p>`;
     return;
   }
 
@@ -258,16 +258,16 @@ function renderFavoritesDrawer() {
   ` +
     favorites
       .map(
-        (book) => `
+        (app) => `
     <div class="drawer-item">
-      <div class="drawer-item-clickable" onclick="window.location.href='frontend/pages/product.html?id=${book.id}'">
-        <img src="${book.imagem}" alt="${book.titulo}">
+      <div class="drawer-item-clickable" onclick="window.location.href='frontend/pages/product.html?id=${app.id}'">
+        <img src="${app.imagem}" alt="${app.titulo}">
         <div class="drawer-item-info">
-          <span class="drawer-item-title">${book.titulo}</span>
-          <span class="drawer-item-author">${book.autor}</span>
+          <span class="drawer-item-title">${app.titulo}</span>
+          <span class="drawer-item-author">${app.autor}</span>
         </div>
       </div>
-      <button class="btn-remove-fav" onclick="removeFromDrawer('${book.id}')">Remover</button>
+      <button class="btn-remove-fav" onclick="removeFromDrawer('${app.id}')">Remover</button>
     </div>
   `,
       )
@@ -275,11 +275,11 @@ function renderFavoritesDrawer() {
 }
 
 window.removeFromDrawer = (id) => {
-  favorites = favorites.filter((fav) => fav.id !== id);
-  localStorage.setItem("vivaLeveFavorites", JSON.stringify(favorites));
+  favorites = favorites.filter((fav) => fav.id.toString() !== id.toString());
+  localStorage.setItem("softsafeFavorites", JSON.stringify(favorites));
   updateFavoritesUI();
   renderFavoritesDrawer();
-  renderBooks(allBooks); // Sincroniza os corações na grade
+  renderApps(allApps); // Sincroniza os corações na grade
 };
 
 document
@@ -323,7 +323,7 @@ function renderNoResults(query) {
     <div class="no-results">
       <i class="ph ph-magnifying-glass"></i>
       <p>Nenhum resultado para "<strong>${query}</strong>"</p>
-      <span>Verifica a ortografia ou tenta pesquisar por outro título ou autor.</span>
+      <span>Verifica a ortografia ou tenta pesquisar por outro nome ou desenvolvedor.</span>
     </div>
   `;
 }
@@ -343,24 +343,24 @@ const handleSearch = (queryValue) => {
 
     // Se a pesquisa estiver vazia, restaura o catálogo completo automaticamente
     if (query === "") {
-      renderBooks(allBooks);
+      renderApps(allApps);
       return;
     }
 
-    const filtered = allBooks.filter(
-      (book) => {
-        const titulo = normalizarTexto(book.titulo);
-        const autor = normalizarTexto(book.autor);
-        const categoria = book.categoria_tag ? normalizarTexto(book.categoria_tag) : "";
+    const filtered = allApps.filter(
+      (app) => {
+        const titulo = normalizarTexto(app.titulo);
+        const autor = normalizarTexto(app.autor);
+        const categoria = app.categoria_tag ? normalizarTexto(app.categoria_tag) : "";
 
         return titulo.includes(query) || autor.includes(query) || categoria.includes(query);
       }
     );
 
     if (filtered.length === 0) {
-      renderNoResults(query);
+      renderNoResults(queryValue);
     } else {
-      renderBooks(filtered, query);
+      renderApps(filtered, query);
     }
   }, 300);
 };
@@ -373,19 +373,19 @@ document.addEventListener("input", (e) => {
 });
 
 /**
- * Filtra os livros baseando-se na tagId
+ * Filtra os apps baseando-se na tagId
  * @param {string} tag
  */
 function applyFilter(tag) {
   const filtered =
     tag === "all"
-      ? allBooks
-      : allBooks.filter((book) => book.categoria_tag === tag);
+      ? allApps
+      : allApps.filter((app) => app.categoria_tag === tag);
 
   // Muda a cor de fundo baseado na categoria
   changeBackgroundByCategory(tag);
 
-  renderBooks(filtered);
+  renderApps(filtered);
 }
 
 // Eventos para Filtros Desktop

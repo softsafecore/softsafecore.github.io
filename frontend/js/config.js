@@ -1,5 +1,5 @@
 /**
- * Viva Leve - Configuração Global de Rotas e Caminhos
+ * SoftSafe Core - Configuração Global de Rotas e Caminhos
  */
 
 const pathname = window.location.pathname;
@@ -19,7 +19,7 @@ export const CONFIG = {
     },
     assets: {
         logo: `${root}frontend/assets/logo.png`,
-        livrosJson: `${root}frontend/json/livros.json`,
+        appsJson: `${root}frontend/json/apps.json`,
         placeholder: `${root}frontend/assets/covers/placeholder.jpg`
     }
 };

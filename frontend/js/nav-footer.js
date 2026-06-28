@@ -1,5 +1,5 @@
 /**
- * Viva Leve - Arquiteto Front-End
+ * SoftSafe Core - Arquiteto Front-End
  * Sistema Modular de Injeção de Navbar e Footer
  */
 import { auth } from "./firebase-config.js";
@@ -113,7 +113,7 @@ function initFavoritesModal() {
 
     if (!modal) return;
 
-    const getFavs = () => JSON.parse(localStorage.getItem('vivaLeveFavorites')) || [];
+    const getFavs = () => JSON.parse(localStorage.getItem('softsafeFavorites')) || [];
 
     const openModal = () => {
         modal.classList.add('active');
@@ -174,7 +174,7 @@ function initFavoritesModal() {
     const removeFav = (id) => {
         let favs = getFavs();
         favs = favs.filter(b => b.id.toString() !== id.toString());
-        localStorage.setItem('vivaLeveFavorites', JSON.stringify(favs));
+        localStorage.setItem('softsafeFavorites', JSON.stringify(favs));
 
         // Efeito slide-out
         const el = document.getElementById(`fav-item-${id}`);
@@ -376,7 +376,7 @@ function initCookieConsent() {
 
     if (!banner) return;
 
-    const consentKey = 'vivaLeveCookieConsent';
+    const consentKey = 'softsafeCookieConsent';
     const savedConsent = localStorage.getItem(consentKey);
 
     // Se não houver consentimento, exibe o banner com delay para elegância
@@ -619,7 +619,7 @@ function initAutocomplete() {
             // Lazy load do catálogo para evitar consumo desnecessário
             if (allBooks.length === 0) {
                 try {
-                    const res = await fetch(CONFIG.assets.livrosJson);
+                    const res = await fetch(CONFIG.assets.appsJson);
                     allBooks = await res.json();
                 } catch (err) { return; }
             }
