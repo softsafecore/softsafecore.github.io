@@ -1110,6 +1110,72 @@ h2 {
   text-align: justify;
 }
 
+/* --- Carrossel de Screenshots --- */
+.carousel-container {
+  position: relative;
+  margin-top: 20px;
+}
+
+.carousel-viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.screenshot-gallery {
+  display: flex;
+  gap: 10px;
+  padding: 5px 0;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.screenshot-thumb {
+  width: 120px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  flex-shrink: 0; /* Impede que as imagens encolham */
+}
+
+.screenshot-thumb:hover,
+.screenshot-thumb.active {
+  opacity: 1;
+  transform: scale(1.05);
+  border-color: var(--verde-brilho);
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.carousel-container:hover .carousel-btn {
+  opacity: 1;
+}
+
+.carousel-btn.prev { left: -15px; }
+.carousel-btn.next { right: -15px; }
+
+.carousel-btn:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
 /* --- Related Books Section --- */
 .related-books-section {
   margin-top: 100px;

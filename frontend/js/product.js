@@ -167,49 +167,58 @@ document.addEventListener("DOMContentLoaded", () => {
    */
   function renderProduct(app) {
     // Atualização dinâmica das Meta Tags para SEO e Browser
-    document.title = `${app.titulo} - SoftSafe Core`;
+    document.title = `${app.title} - SoftSafe Core`;
 
     const ogTitle = document.getElementById("og-title");
     const ogDesc = document.getElementById("og-description");
     const ogImg = document.getElementById("og-image");
     const ogUrl = document.getElementById("og-url");
 
-    if (ogTitle) ogTitle.setAttribute("content", app.titulo);
+    if (ogTitle) ogTitle.setAttribute("content", app.title);
     if (ogDesc)
-      ogDesc.setAttribute("content", app.descricao || "Apps e Jogos Seguros");
-    if (ogImg) ogImg.setAttribute("content", app.imagem);
+      ogDesc.setAttribute("content", app.description || "Apps e Jogos Seguros");
+    if (ogImg) ogImg.setAttribute("content", app.image);
     if (ogUrl) ogUrl.setAttribute("content", window.location.href);
 
     injectJSONLD(app);
 
     const isFavorite = favorites.some(fav => fav.id.toString() === app.id.toString());
-    const price = app.preco || 0;
+    const price = app.price;
+    const formattedPrice = (price === "0" || price === "00") ? "Grátis" : `MT ${parseFloat(price).toFixed(2)}`;
+    const formattedDescription = app.description.replace(/\n/g, '<br>');
+    const imageScreenshots = (app.media || []).filter(m => m.type === 'image');
 
     container.innerHTML = `
       <a href="../index.html" class="btn-back"><i class="ph ph-arrow-left"></i> Voltar ao Catálogo</a>
       <div class="product-page-wrapper fade-in-node">
         <!-- Coluna da Imagem e Galeria -->
         <div class="product-media">
-          <img src="${app.imagem}" alt="${app.titulo}" class="product-main-image img-loaded">
-          <div class="screenshot-gallery">
-            ${(app.screenshots || []).map(ss => `<img src="${ss}" alt="Screenshot de ${app.titulo}" class="screenshot-thumb">`).join('')}
+          <img src="${app.image}" alt="${app.title}" class="product-main-image img-loaded">
+          <div class="carousel-container">
+            <button class="carousel-btn prev" id="carousel-prev" aria-label="Anterior">&#10094;</button>
+            <div class="carousel-viewport">
+              <div class="screenshot-gallery" id="screenshot-gallery">
+                ${imageScreenshots.map(ss => `<img src="${ss.src.replace('./frontend/', '../')}" alt="Screenshot de ${app.title}" class="screenshot-thumb">`).join('')}
+              </div>
+            </div>
+            <button class="carousel-btn next" id="carousel-next" aria-label="Próximo">&#10095;</button>
           </div>
         </div>
 
         <!-- Coluna de Informações e Ações -->
         <div class="product-content">
           <p class="breadcrumb">${app.categoria_tag || 'Software'}</p>
-          <h1 class="product-title">${app.titulo}</h1>
-          <p class="product-author">Desenvolvido por <span>${app.desenvolvedor}</span></p>
+          <h1 class="product-title">${app.title}</h1>
+          <p class="product-author">Desenvolvido por <span>${app.author}</span></p>
 
           <div class="product-meta-grid">
-            <div class="meta-item"><span>Versão</span>${app.versao || 'N/A'}</div>
-            <div class="meta-item"><span>Tamanho</span>${app.tamanho || 'N/A'}</div>
-            <div class="meta-item"><span>Plataforma</span>${app.plataforma || 'N/A'}</div>
+            <div class="meta-item"><span>Versão</span>${app.version || 'N/A'}</div>
+            <div class="meta-item"><span>Tamanho</span>${app.size || 'N/A'}</div>
+            <div class="meta-item"><span>Plataforma</span>${app.compatibility || 'N/A'}</div>
           </div>
 
           <div class="product-price-row">
-            <span class="product-price">${price === 0 ? "Grátis" : price.toFixed(2) + " " + (app.moeda || "MT")}</span>
+            <span class="product-price">${formattedPrice}</span>
             <button id="fav-btn" class="btn-favorite-large ${isFavorite ? 'active' : ''}">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="heart-icon"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
               <span class="fav-text">${isFavorite ? 'FAVORITADO' : 'ADICIONAR AOS FAVORITOS'}</span>
@@ -217,13 +226,13 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
 
           <div class="product-actions">
-            <a href="https://payhip.com/b/${app.payhip_key}" class="payhip-buy-button btn-buy-now" data-theme="none">Obter Agora</a>
+            <a href="${app.download_link}" target="_blank" class="btn-buy-now">Obter Agora</a>
             <button id="share-btn" class="btn-share"><i class="ph ph-share-network"></i> Partilhar</button>
           </div>
 
           <div class="product-description">
             <h2>Sobre este App</h2>
-            <p>${app.descricao || 'Nenhuma descrição disponível.'}</p>
+            <p>${formattedDescription || 'Nenhuma descrição disponível.'}</p>
           </div>
         </div>
       </div>
@@ -233,19 +242,61 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('fav-btn').addEventListener('click', (e) => toggleFavorite(e, app));
     document.getElementById('share-btn').addEventListener('click', () => handleShare(app));
 
-    // Lógica da galeria de screenshots
+    // Inicializa o carrossel e a galeria
+    initCarousel();
+  }
+
+  /**
+   * Inicializa a lógica do carrossel de screenshots
+   */
+  function initCarousel() {
     const mainImage = document.querySelector('.product-main-image');
     const thumbs = document.querySelectorAll('.screenshot-thumb');
+    const gallery = document.getElementById('screenshot-gallery');
+    const prevBtn = document.getElementById('carousel-prev');
+    const nextBtn = document.getElementById('carousel-next');
+    let currentIndex = 0;
+
+    if (!gallery || thumbs.length === 0) return;
+
+    const thumbWidth = thumbs[0].offsetWidth + 10; // Largura da imagem + gap
+
+    function updateCarousel() {
+      gallery.style.transform = `translateX(-${currentIndex * thumbWidth}px)`;
+      prevBtn.disabled = currentIndex === 0;
+      // Verifica se o final do carrossel foi alcançado
+      const viewportWidth = gallery.parentElement.offsetWidth;
+      const galleryWidth = gallery.scrollWidth;
+      nextBtn.disabled = (currentIndex * thumbWidth) + viewportWidth >= galleryWidth;
+
+      // Atualiza a classe 'active' na miniatura
+      thumbs.forEach((t, i) => t.classList.toggle('active', t.src === mainImage.src));
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateCarousel();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      currentIndex++;
+      updateCarousel();
+    });
+
     thumbs.forEach(thumb => {
       thumb.addEventListener('click', () => {
-        // Troca a imagem principal com efeito de fade
         mainImage.style.opacity = 0;
         setTimeout(() => {
           mainImage.src = thumb.src;
           mainImage.style.opacity = 1;
+          updateCarousel(); // Sincroniza o estado ativo
         }, 200);
       });
     });
+
+    updateCarousel(); // Define o estado inicial
   }
 
   /**
@@ -297,10 +348,10 @@ document.addEventListener("DOMContentLoaded", () => {
           (app) => `
       <div class="drawer-item">
         <div class="drawer-item-clickable" onclick="window.location.href='product.html?id=${app.id}'">
-          <img src="${app.imagem}" alt="${app.titulo}">
+          <img src="${app.image.replace('./frontend/', '../')}" alt="${app.title}">
           <div class="drawer-item-info">
-            <span class="drawer-item-title">${app.titulo}</span>
-            <span class="drawer-item-author">${app.desenvolvedor}</span>
+            <span class="drawer-item-title">${app.title}</span>
+            <span class="drawer-item-author">${app.author}</span>
           </div>
         </div>
         <button class="btn-remove-fav" onclick="removeFromDrawer('${app.id}')">Remover</button>
@@ -365,10 +416,10 @@ document.addEventListener("DOMContentLoaded", () => {
       .map((app, index) => {
         return `
         <article class="book-card fade-in-node" style="animation-delay: ${index * 0.1}s" onclick="window.location.href='product.html?id=${app.id}'">
-            <img src="${app.imagem}" alt="${app.titulo}" class="book-cover" loading="lazy" onload="this.classList.add('img-loaded')">
+            <img src="${app.image.replace('./frontend/', '../')}" alt="${app.title}" class="book-cover" loading="lazy" onload="this.classList.add('img-loaded')">
             <div class="book-info">
-                <h3 class="book-title">${app.titulo}</h3>
-                <span class="book-price">${app.preco === 0 ? "Grátis" : app.preco.toFixed(2) + " MT"}</span>
+                <h3 class="book-title">${app.title}</h3>
+                <span class="book-price">${(app.price === "0" || app.price === "00") ? "Grátis" : `MT ${parseFloat(app.price).toFixed(2)}`}</span>
             </div>
         </article>
       `;
@@ -394,15 +445,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const appSchema = {
       "@type": "SoftwareApplication",
-      name: app.titulo,
+      name: app.title,
       applicationCategory: app.categoria_tag,
-      operatingSystem: app.plataforma,
-      image: app.imagem,
-      description: app.descricao || "Apps e Jogos Seguros",
+      operatingSystem: app.compatibility,
+      image: app.image,
+      description: app.description || "Apps e Jogos Seguros",
       offers: {
         "@type": "Offer",
-        price: app.preco,
-        priceCurrency: "MZN",
+        price: app.price,
+        priceCurrency: app.moeda || "MZN",
         availability: "https://schema.org/InStock",
       },
     };
@@ -425,7 +476,7 @@ document.addEventListener("DOMContentLoaded", () => {
         {
           "@type": "ListItem",
           position: 3,
-          name: app.titulo,
+          name: app.title,
           item: window.location.href,
         },
       ],
@@ -445,8 +496,8 @@ document.addEventListener("DOMContentLoaded", () => {
    */
   async function handleShare(app) {
     const shareData = {
-      title: `SoftSafe Core - ${app.titulo}`,
-      text: `Dá uma olhada neste app: "${app.titulo}". Encontrei no SoftSafe Core!`,
+      title: `SoftSafe Core - ${app.title}`,
+      text: `Dá uma olhada neste app: "${app.title}". Encontrei no SoftSafe Core!`,
       url: window.location.href,
     };
 

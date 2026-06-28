@@ -146,27 +146,28 @@ function changeBackgroundByCategory(category) {
 function renderApps(apps, query = "") {
   booksGrid.innerHTML = apps
     .map((app, index) => {
-      const isFav = favorites.some((fav) => fav.id?.toString() === app.id?.toString());
-      const price = app.preco || 0;
+      const isFav = favorites.some((fav) => fav.id?.toString() === app.id.toString());
+      const price = app.price;
+      const formattedPrice = (price === "0" || price === "00") ? "Grátis" : `MT ${parseFloat(price).toFixed(2)}`;
 
       const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
       // Aplica o destaque se houver uma pesquisa ativa
       const displayTitle = query
-        ? app.titulo.replace(new RegExp(`(${escapedQuery})`, "gi"), '<mark class="search-highlight">$1</mark>')
-        : app.titulo;
+        ? app.title.replace(new RegExp(`(${escapedQuery})`, "gi"), '<mark class="search-highlight">$1</mark>')
+        : app.title;
 
       return `
         <article class="book-card fade-in-node" style="animation-delay: ${index * 0.05}s" data-category="${app.categoria_tag}">
             <div style="position: relative;">
-              <vv-image src="${app.imagem}" alt="${app.titulo}" img-class="book-cover"></vv-image>
+              <vv-image src="${app.image.replace('./frontend/', '')}" alt="${app.title}" img-class="book-cover"></vv-image>
             </div>
             <div class="book-info">
                 <h3 class="book-title">${displayTitle}</h3>
-                <span class="book-price">${price === 0 ? "Grátis" : price.toFixed(2) + " " + (app.moeda || "MT")}</span>
+                <span class="book-price">${formattedPrice}</span>
                 
                 <div class="book-actions">
-                  <a href="https://payhip.com/b/${app.payhip_key}" class="payhip-buy-button btn-buy-direct" data-theme="none" data-product="${app.id}">
+                  <a href="frontend/pages/product.html?id=${app.id}" class="btn-buy-direct">
                     Obter Agora
                   </a>
                 </div>
@@ -261,10 +262,10 @@ function renderFavoritesDrawer() {
         (app) => `
     <div class="drawer-item">
       <div class="drawer-item-clickable" onclick="window.location.href='frontend/pages/product.html?id=${app.id}'">
-        <img src="${app.imagem}" alt="${app.titulo}">
+        <img src="${app.image.replace('./frontend/', '')}" alt="${app.title}">
         <div class="drawer-item-info">
-          <span class="drawer-item-title">${app.titulo}</span>
-          <span class="drawer-item-author">${app.autor}</span>
+          <span class="drawer-item-title">${app.title}</span>
+          <span class="drawer-item-author">${app.author}</span>
         </div>
       </div>
       <button class="btn-remove-fav" onclick="removeFromDrawer('${app.id}')">Remover</button>
@@ -349,8 +350,8 @@ const handleSearch = (queryValue) => {
 
     const filtered = allApps.filter(
       (app) => {
-        const titulo = normalizarTexto(app.titulo);
-        const autor = normalizarTexto(app.autor);
+        const titulo = normalizarTexto(app.title);
+        const autor = normalizarTexto(app.author);
         const categoria = app.categoria_tag ? normalizarTexto(app.categoria_tag) : "";
 
         return titulo.includes(query) || autor.includes(query) || categoria.includes(query);
